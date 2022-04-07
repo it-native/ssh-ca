@@ -1,6 +1,6 @@
 # SSH CA
 
-tl;dr: Read and follow the instructions in [sample setup](#sample-setup) and be happy.
+I have been writing novels. If you are not interested in reading them, just follow the instructions in [sample setup](#sample-setup) and be happy.
 
 Contents:
 
