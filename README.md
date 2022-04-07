@@ -81,6 +81,8 @@ If you want to renew a certificate, just run `./cert.sh {your_device}` and renew
 
 ## What I want to add in this repo
 
+This repo should be a knowledge base for everything I know and should know about a SSH certificate authority. Hence, the following should be included, should I be motivated some time...
+
 -   Commands I found helpful
 -   Principals - How I use them and how they _should_ be used
 -   Description what the script does
