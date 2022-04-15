@@ -7,7 +7,7 @@
   - [What to remember](#what-to-remember)
 - [Sources](#sources)
 
-Each certificate - no matter if user or server - has principals. Here, I want to discuss how I can use principals for users.
+Each certificate - issued for a user or a server - has principals. Here, I want to discuss how I can use principals for users.
 
 My idea of principals: I want to allow the user to connect to `root@server1` but not `root@server2`. Hence, I would like to write into the principals: "Allow connection to `root@server1` and the server should understand that. Let's see.
 
