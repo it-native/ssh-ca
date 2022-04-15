@@ -84,7 +84,6 @@ If you want to renew a certificate, just run `./cert.sh {your_device}` and renew
 This repo should be a knowledge base for everything I know and should know about a SSH certificate authority. Hence, the following should be included, should I be motivated some time...
 
 -   Commands I found helpful
--   Principals - How I use them and how they _should_ be used
 -   Description what the script does
 -   Setup - Create SSH CA key, serial
 -   Ansible!
@@ -95,3 +94,4 @@ This repo should be a knowledge base for everything I know and should know about
         -   Update principals? Better not - due to security...
 -   About expiration of certificates
 -   Trouble shooting?
+-   Server principals
