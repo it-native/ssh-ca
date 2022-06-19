@@ -30,7 +30,7 @@ done
 if [[ ! -f $infile.pub ]]
 then
 	echo No public key file found. The script does not work now.
-	exit
+	exit 1
 fi
 if [[ $infile == ssh_host* ]]
 then
