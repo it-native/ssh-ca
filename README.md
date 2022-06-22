@@ -72,7 +72,7 @@ Now for initial setup, do the following:
     2. If you are feeling lucky (Backup!!), delete all the contents of the file. Remember that it's not my fault.
     3. Add a new line that reads as follows: `@cert-authority *.domain.com ssh-ed25519 *`.
         - The `ssh-ed25519 *` part should be the contents of the `ca.pub` file.
-        - `*.domain.com` could also be IP addresses - for example, `192.168.0.*`. Don't nail me down on that one - I did only try the `*.domain.com` part until now. In any case, it should match the `server` part of `ssh somebody@server` command you are running. TODO.
+        - `*.domain.com` could also be IP addresses - for example, `192.168.0.*`.
     4. SSH to your server. Hope to not see an `Authenticate?` question. If you really want to test it, delete all the other lines in the `known_hosts` file. Hence, the only option for the server to authenticate is to present a signed certificate.
 
 ## Renewing certificates
