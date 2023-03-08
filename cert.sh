@@ -51,7 +51,7 @@ fi
 $command \
 	-s ../ca \
 	-I $server \
-	-V +40d \
+	-V +35d \
 	-z $serial \
 	-n $principals \
 	$infile.pub
