@@ -14,7 +14,7 @@ Contents:
 
 tl;dr below.
 
-Type `ssh somebody@server` - On first connect, your SSH client will ask you "Do you trust this server?". It will show you a very long sequence of characters. Since you care about computer security, you compare the public SSH host key of the server against this sequence and type "yes" - afterwords and not before.
+Type `ssh somebody@server` - On first connect, your SSH client will ask you "Do you trust this server?". It will show you a very long sequence of characters. Since you care about computer security, you compare the public SSH host key of the server against this sequence and type "yes" - afterwards and not before.
 
 This is the first problem I want to solve: I do not want to blindly trust the server to be the right one. Using a certificate, I can bypass this problem.
 
@@ -48,7 +48,7 @@ Now for initial setup, do the following:
 2. Create the desktop certificate:
     1. Create a directory `auth-server:/root/ssh-ca/desktop`. The last part (`desktop`) needs to be unique per client/server for my script to work! Also, for a server, it should be the domain name - so, `server.example.com`. I will use this directory name as the certificate name and maybe as a principal.
     2. Copy `user@desktop:~/.ssh/id_{rsa,ed25519,...}.pub` to `root@auth-server:/root/ssh-ca/desktop/id_{...}.pub`
-    3. Create the file `auth-server:/root/ssh-ca/desktop/principals` and add only one line: `server_username` - the username you want login as on the server
+    3. Create the file `auth-server:/root/ssh-ca/desktop/principals` and add only one line: `server_username` - the username you want to login as on the server
     4. Go to the base directory of this script and run `root@auth-server:/root/ssh-ca# ./cert.sh desktop`
     5. Find a new file `auth-server:/root/ssh-ca/desktop/current-cert.pub`. Be excited!
     6. Copy this `current-cert.pub` to `user@desktop:~/.ssh/id_{same_as_before}-cert`. Omit the `.pub` part of the filename!
@@ -56,7 +56,7 @@ Now for initial setup, do the following:
 3. Authorize signed certificates on the server
     1. Copy `auth-server:/root/ssh-ca/ca.pub` to `server:/etc/ssh/ca.pub`
     2. Edit `server:/etc/ssh/sshd_config` and add the following line: `TrustedUserCAKeys /etc/ssh/ca.pub`. Hence, if the client authenticates with a certificate signed by the CA, accept it (depending on the principals)
-    3. Restart sshd: `root@server# systemctl restart sshd` on debian/Ubuntu. This may differ on your server - but `sshd` should be called `sshd` on the most common Linux distributions.
+    3. Restart sshd: `root@server# systemctl restart sshd` on Debian/Ubuntu. This may differ on your server - but `sshd` should be called `sshd` on the most common Linux distributions.
     4. Now, try to login using SSH: `user@desktop$ ssh server_username@server.domain.com`. Remember that `server_username` needs to match the username you wrote into the `principals` file on the CA.
     5. If you are feeling lucky, delete `server_username@server:~/.ssh/authorized_keys` and try to login again. Do not forget to keep a backup (and an open SSH session to the server in case something does not work)!
     6. Now, be excited!
