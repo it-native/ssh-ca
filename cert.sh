@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # chdir to the right working directory
-cd /root/ssh-ca
+# cd /root/ssh-ca
 
 # Get hostname of the server
 server=$1
@@ -11,6 +11,11 @@ if [[ $server == "" ]]
 then
 	echo Please specify a host.
 	exit 1
+fi
+
+# Check if the serial file exists and create it otherwise
+if [ ! -f serial ]; then
+	echo "1" > serial
 fi
 
 # Get the serial number
