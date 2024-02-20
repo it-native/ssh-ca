@@ -44,7 +44,7 @@ For the setup of my certificate authority (CA), I will use the following machine
 
 Now for initial setup, do the following:
 
-1. The SSH certificate authority itself essentially is a public/private key pair. Create it: `root@auth-server:/root/ssh-ca# ssh-keygen -t ed25519 -C ca@your.domain -f ca`. Put a password on this one. Also, store the password.
+1. The SSH certificate authority itself essentially is a public/private key pair. Create it: `root@auth-server:/root/ssh-ca# ssh-keygen -t ed25519 -C ca@$(hostname -d) -f ca`. Put a password on this one. Also, store the password.
 2. Create the desktop certificate:
     1. Create a directory `auth-server:/root/ssh-ca/desktop`. The last part (`desktop`) needs to be unique per client/server for my script to work! Also, for a server, it should be the domain name - so, `server.example.com`. I will use this directory name as the certificate name and maybe as a principal.
     2. Copy `user@desktop:~/.ssh/id_{rsa,ed25519,...}.pub` to `root@auth-server:/root/ssh-ca/desktop/id_{...}.pub`
