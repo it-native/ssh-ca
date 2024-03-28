@@ -62,7 +62,7 @@ Now for initial setup, do the following:
     6. Now, be excited!
 4. Create the server certificate:
     1. Create the directory `auth-server:/root/ssh-ca/server.example.com`. Here, `server.example.com` needs to resolve to your `server`. If you do not have a domain name for your server, use the IP address.
-    2. Do not create a principals file. It is not required.
+    2. The principals file is only needed if you have multiple hostnames for the server. All hostnames need to be listed separated by comma.
     3. Copy `server:/etc/ssh/ssh_host_ed25519_key.pub` to `auth-server:/root/ssh-ca/server.example.com/ssh_host_ed25519_key.pub`
     4. Create the certificate: `root@auth-server:/root/ssh-ca# ./cert.sh server.example.com`
     6. Copy `auth-server:/root/ssh-ca/server.example.com/current-cert.pub` to `server:/etc/ssh/ssh_host_ed25519_key-cert.pub`
