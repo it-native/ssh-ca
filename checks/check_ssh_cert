@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Nagios check_ssh_cert plugin 
+#Nagios check_ssh_cert plugin
 
 # check_ssh_cert
 # Copyright (c) 2024 IT-Native, Chris Pratl
@@ -8,7 +8,7 @@
 # This plugin tests the SSH service on the specified host or local file . It can report on
 #   certificate expiration times.
 
-# Example /omd/sites/monitoring/local/lib/monitoring-plugins/check_ssh_cert -H server01.example.com -p 22 -C 7,1 -6 -l monitoring -i ~/.ssh/id_ecdsa
+# Example /omd/sites/monitoring/local/lib/monitoring-plugins/check_ssh_cert -H server01.example.com -p 22 -C 7,1 -6 -l monitoring
 
 #   Options:
 #    -h, --help
@@ -52,7 +52,7 @@ display_help() {
 while [ -n "$1" ]; do
 	case "$1" in
 		"-H" | "--hostname") 	HOST=$2
-			shift 1 
+			shift 1
 		;;
 		"-p" | "--port")     PORT=$2
 			shift 1
@@ -115,7 +115,7 @@ else
 	then
 		PORT=22
 	fi
-	
+
 	if ! DATE_VALID_TO=$(ssh-keyscan -c $HOST -p $PORT $SIX 2> /dev/null | ssh-keygen -L -f -); then
 		echo "Could not connect to host $HOST"
 		exit $UNKNOWN
