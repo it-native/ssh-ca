@@ -8,7 +8,7 @@
 # This plugin tests the SSH service on the specified host or local file . It can report on
 #   certificate expiration times.
 
-# Example /omd/sites/monitoring/local/lib/monitoring-plugins/check_ssh_cert -H server01.example.com -p 22 -C 7,1 -6 -l monitoring
+# Example /omd/sites/monitoring/local/lib/monitoring-plugins/check_ssh_cert -H server01.example.com -p 22 -C 7,1 -6
 
 #   Options:
 #    -h, --help
