@@ -1,6 +1,6 @@
 ca
 ca.pub
 serial
-
 */*
+!checks/*
 !docs/*

@@ -1,0 +1,148 @@
+#!/bin/bash
+
+#Nagios check_ssh_cert plugin 
+
+# check_ssh_cert
+# Copyright (c) 2024 IT-Native, Chris Pratl
+
+# This plugin tests the SSH service on the specified host or local file . It can report on
+#   certificate expiration times.
+
+# Example /omd/sites/monitoring/local/lib/monitoring-plugins/check_ssh_cert -H server01.example.com -p 22 -C 7,1 -6 -l monitoring -i ~/.ssh/id_ecdsa
+
+#   Options:
+#    -h, --help
+#       Print detailed help screen
+#    -V, --version
+#       Print version information
+#    -v, --version
+#       Print version information
+#    -H, --hostname ADDRESS
+#       Host name argument for servers using host headers (virtual host)
+#       Append a port to include it in the header (eg: example.com:5000)
+#    -p, --port INTEGER
+#       Port number (default: 22)
+#    -6, --use-ipv6
+#       Use IPv6 only
+#    -C, --certificate=INTEGER[,INTEGER]
+#       Minimum number of days a certificate has to be valid.(default: 7,1)
+
+OK=0
+WARNING=1
+CRITICAL=2
+UNKNOWN=3
+VERSION=0.0.3
+WARN_DAYS=7
+CRIT_DAYS=1
+
+
+# Function to display help message
+display_help() {
+    echo "Usage: $0 [OPTION]"
+    echo "Options:"
+		echo "  -f,--file file           Local file path or URI."
+		echo "  -H, --hostname HOST      Specify the hostname"
+    echo "  -p,--port PORT           Specify the port. Default: 22"
+    echo "  -C DAYS_TO_WARN<,DAYS_TO_CRIT>      Minimum number of days a certificate has to be valid to issue a critical/warning status. Default: 7,1"
+    echo "  -6                    	 Use IPv6 only"
+    echo "  -V VERSION               Display the version and exit"
+    echo "  -h, --help               Display this help message and exit"
+}
+
+while [ -n "$1" ]; do
+	case "$1" in
+		"-H" | "--hostname") 	HOST=$2
+			shift 1 
+		;;
+		"-p" | "--port")     PORT=$2
+			shift 1
+		;;
+		-C)     DAYS_TO_ALERT=$2
+			shift 1
+		;;
+		-6) SIX=$1
+			shift 1
+			;;
+		"-f" | "--file") FILEPATH=$2
+			shift 1
+			;;
+		-V)
+			echo $VERSION
+			exit $OK
+			;;
+		"-h" | "--help")
+			display_help
+	    exit $UNKNOWN
+			;;
+
+		esac
+shift 1
+done
+
+if [ -z "$HOST" ] && [ -z "$FILEPATH" ]
+then
+	printf "No hostname or filepath provided (-H HOSTNAME|-f PATH)\n\n"
+	display_help
+  exit $UNKNOWN
+fi
+
+if [ -n "$DAYS_TO_ALERT" ]
+	then
+	if [[ $DAYS_TO_ALERT == *,* ]]; then
+			WARN_DAYS=$(echo $DAYS_TO_ALERT | cut -d "," -f 1)
+			CRIT_DAYS=$(echo $DAYS_TO_ALERT | cut -d "," -f 2)
+			if [ $WARN_DAYS -le $CRIT_DAYS ]; then
+				echo "Days to warn ($WARN_DAYS) less than days to critical ($CRIT_DAYS)"
+				exit $UNKNOWN
+			fi
+	else
+		WARN_DAYS=$DAYS_TO_ALERT
+	fi
+
+fi
+
+## Taken from https://www.tech-tales.blog/posts/2024/02-ssh-validity-of-certificate/
+if [ -n "$FILEPATH" ]; then
+	if [ -f "$FILEPATH" ]; then
+		# Store the expiry date in a variable
+		DATE_VALID_TO=$(ssh-keygen -L -f "$FILEPATH")
+	else
+		echo "File $FILEPATH does not exist."
+		exit $UNKNOWN
+	fi
+else
+	if [ -z "$PORT" ]
+	then
+		PORT=22
+	fi
+	
+	if ! DATE_VALID_TO=$(ssh-keyscan -c $HOST -p $PORT $SIX 2> /dev/null | ssh-keygen -L -f -); then
+		echo "Could not connect to host $HOST"
+		exit $UNKNOWN
+	fi
+fi
+
+if  [ -z "$DATE_VALID_TO" ]; then
+	echo "Certificate not valid"
+	exit $UNKNOWN
+fi
+
+# Store the expiry date as seconds since the epoch
+DATE_VALID_TO=$(echo "$DATE_VALID_TO" | grep "Valid:" | cut -d " " -f 13)
+DATE_VALID_TO_UNIX_TIMESTAMP=$(date +%s -d "$DATE_VALID_TO")
+PRESENT_DATE=$(date +"%s")
+WARN_DATE=$(date -d "+${WARN_DAYS} days" +"%s")
+CRIT_DATE=$(date -d "+${CRIT_DAYS} days" +"%s")
+if [ "$PRESENT_DATE" -gt "$DATE_VALID_TO_UNIX_TIMESTAMP" ]; then
+	echo CRITIAL - Certificate $HOST expired on $DATE_VALID_TO
+	exit $CRITICAL
+elif [ "$CRIT_DATE" -ge "$DATE_VALID_TO_UNIX_TIMESTAMP" ]; then
+	echo CRITIAL - Certificate $HOST will expire on $DATE_VALID_TO
+	exit $CRITICAL
+elif [ "$WARN_DATE" -ge "$DATE_VALID_TO_UNIX_TIMESTAMP" ]; then
+	echo WARN - Certificate $HOST will expire on $DATE_VALID_TO
+	exit $WARNING
+else
+	echo OK - Certificate $HOST will expire on $DATE_VALID_TO
+	exit $OK
+fi
