@@ -1,0 +1,9 @@
+[Unit]
+Description=SSH Host Certificate Renewer
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+
+[Install]
+WantedBy=timers.target

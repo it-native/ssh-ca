@@ -4,3 +4,4 @@ serial
 */*
 !checks/*
 !docs/*
+!hashicorp-vault/*
