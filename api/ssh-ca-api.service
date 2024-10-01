@@ -1,0 +1,14 @@
+[Unit]
+Description=SSH-CA API
+After=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/ssh-ca/
+# ExecStart=/root/ssh-ca/env/bin/uvicorn --host 0.0.0.0 --port 8999 api.app.main:app
+ExecStart=/root/ssh-ca/env/bin/python -m api.app
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
