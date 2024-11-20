@@ -116,7 +116,7 @@ else
 		PORT=22
 	fi
 
-	if ! DATE_VALID_TO=$(ssh-keyscan -c $HOST -p $PORT $SIX 2> /dev/null | ssh-keygen -L -f -); then
+	if ! DATE_VALID_TO=$(ssh-keyscan -c -p $PORT -H $HOST $SIX 2> /dev/null | ssh-keygen -L -f -); then
 		echo "Could not connect to host $HOST"
 		exit $UNKNOWN
 	fi
