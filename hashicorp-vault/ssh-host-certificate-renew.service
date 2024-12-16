@@ -1,5 +1,5 @@
 [Unit]
-Description=SSH Host Certificat Renewer
+Description=SSH Host Certificate Renewer
 After=network-online.target
 
 [Service]
