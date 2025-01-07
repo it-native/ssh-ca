@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 # Check if jq is installed
 if ! command -v jq &> /dev/null; then
     echo "Error: 'jq' is not installed. Please install it to use this script."
@@ -32,16 +30,20 @@ if [[ -z "$server" || -z "$appRole" || -z "$roleid" || -z "$sshEnginePath" || -z
 fi
 
 if [[ -z "$port" ]]; then
-        port=8200
+	port=8200
 fi
 
 # Obtain a token from Vault
 token=$(
-    curl -s -XPOST \
+    curl --silent --show-error -XPOST \
         --data "{\"role_id\": \"${roleid}\"}" \
-        "https://${server}:${port}/v1/auth/${appRole}/login" \
-    | jq -r ".auth.client_token"
+        "https://${server}:${port}/v1/auth/${appRole}/login" 2>&1
 )
+if [ $? -ne 0 ] ; then
+   echo "Error: $token"
+   exit 4
+fi
+token=$(echo $token | jq -r ".auth.client_token")
 
 # Get a new certificate
 cert=$(
@@ -49,7 +51,7 @@ cert=$(
         --header "X-Vault-Token: $token" \
         --data "{ \
             \"public_key\": \"$ssh_public_key\", \
-            \"valid_principals\": \"$(hostname -f)\", \
+	    \"valid_principals\": \"$(hostname -f)\", \
             \"cert_type\": \"host\"\
         }" \
         "https://${server}:${port}/v1/${sshEnginePath}/sign/${hostRole}"
@@ -58,8 +60,9 @@ cert=$(echo $cert | jq -r ".data.signed_key")
 # Put the new certificate to the correct position
 if [[ -v cert && "$cert" != "null" ]]
 then
-        echo $cert > /etc/ssh/ssh_host_ed25519_key-cert.pub
+	echo $cert > /etc/ssh/ssh_host_ed25519_key-cert.pub
 else
-        echo "Error during cert signing"
-        exit 4
+	echo "Error during cert signing"
+	exit 4
 fi
+
