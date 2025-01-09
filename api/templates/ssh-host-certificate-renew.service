@@ -1,0 +1,10 @@
+[Unit]
+Description=SSH Host Certificat Renewer
+After=network-online.target
+
+[Service]
+Type=oneshot
+
+ExecStart=/opt/secrets/check-ssh-host-certificate-renew.sh
+WorkingDirectory=/opt/secrets
+User=root

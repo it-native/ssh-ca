@@ -4,15 +4,27 @@
 """
 
 import os
+import random
 from typing import Union
 import subprocess
 
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, Request
 from fastapi.responses import PlainTextResponse
+from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
 
 from . import schemas
 
+class SetupBody(BaseModel):
+    """
+        Required to send the SSH public key
+        as a body parameter.
+    """
+    ssh_key: str
+
 app: FastAPI = FastAPI()
+
+templates: Jinja2Templates = Jinja2Templates(directory="api/templates")
 
 @app.get(
     "/v1/sign/{name}",
@@ -39,7 +51,7 @@ app: FastAPI = FastAPI()
     },
     response_class=PlainTextResponse
 )
-async def sign_certificate(
+async def sign_certificate_v1(
     name: str,
     response: Response,
 ) -> str:
@@ -73,3 +85,127 @@ async def sign_certificate(
         data = fin.readline().strip()
 
     return data
+
+@app.get(
+    "/v1/ca_certificate",
+    response_class=PlainTextResponse
+)
+async def get_ca_certificate() -> str:
+    with open("ca.pub", "r") as fin:
+        data = fin.readline().strip()
+
+    return data
+
+@app.get(
+    "/v1/setup_script_helper/systemd_timer",
+    response_class=PlainTextResponse
+)
+async def get_systemd_timer(
+    request: Request
+) -> str:
+    return templates.TemplateResponse(
+        request=request,
+        name="ssh-host-certificate-renew.timer"
+    )
+@app.get(
+    "/v1/setup_script_helper/systemd_service",
+    response_class=PlainTextResponse
+)
+async def get_systemd_service(
+    request: Request
+) -> str:
+    return templates.TemplateResponse(
+        request=request,
+        name="ssh-host-certificate-renew.service"
+    )
+@app.get(
+    "/v1/setup_script_helper/certificate_checker",
+    response_class=PlainTextResponse
+)
+async def get_script_checker(
+    request: Request,
+) -> str:
+
+    return templates.TemplateResponse(
+        request=request,
+        name="check-ssh-host-certificate-renew.sh",
+    )
+
+@app.get(
+    "/v1/setup_script_helper/certificate_renew/{hostname}",
+    response_class=PlainTextResponse
+)
+async def get_script_renewer(
+    request: Request,
+    hostname: str
+) -> str:
+
+    return templates.TemplateResponse(
+        request=request,
+        name="renew-host-certificate.sh",
+        context={
+            "id": 42,
+            "hostname": hostname
+        }
+    )
+@app.get(
+    "/v1/setup_script_helper/ssh_config_file",
+    response_class=PlainTextResponse
+)
+async def get_ssh_config_file(
+    request: Request,
+
+) -> str:
+
+    return templates.TemplateResponse(
+        request=request,
+        name="ca-config.conf",
+    )
+@app.post(
+    "/v1/setup_script_helper/setup_host/{hostname}",
+    status_code=201
+)
+async def setup_host_v1(
+    request: Request,
+    hostname: str,
+    body: SetupBody
+) -> None:
+
+    client_ip = request.client.host
+
+    # Create directory
+    os.mkdir(hostname)
+
+    # Write principals file
+    with open(f"{hostname}/principals", "w") as fout:
+        fout.write(f"{client_ip},{hostname}")
+
+    # Write SSH key file
+    with open(f"{hostname}/ssh_host_ed25519_key.pub", "w") as fout:
+        fout.write(body.ssh_key)
+
+@app.get(
+    "/v1/setup_script/{hostname}",
+    responses={
+        200: {
+            "model": str
+        },
+    },
+    response_class=PlainTextResponse
+)
+async def setup(
+    request: Request,
+    hostname: str,
+) -> str:
+    """
+        Usage: `curl https://domain.com/v1/setup_script/foobar.domain.com | bash
+    """
+
+    return templates.TemplateResponse(
+        request=request,
+        name="setup_script.sh",
+        context={
+            "id": 42,
+            "hostname": hostname
+        }
+    )
