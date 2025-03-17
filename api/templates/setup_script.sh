@@ -29,7 +29,7 @@ do_install() {
     filename=$basedir/check-ssh-host-certificate-renew.sh
     curl -s "{{ url_for('get_script_checker') }}" > $filename
     chmod 755 $filename
-    filename=$basedir/renew-host-certificate.sh
+    filename=$basedir/renew-ssh-host-certificate.sh
     curl -s "{{ url_for('get_script_renewer', hostname=hostname) }}" > $filename
     chmod 755 $filename
     filename=/etc/systemd/system/ssh-host-certificate-renew.timer

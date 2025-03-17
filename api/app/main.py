@@ -142,7 +142,7 @@ async def get_script_renewer(
 
     return templates.TemplateResponse(
         request=request,
-        name="renew-host-certificate.sh",
+        name="renew-ssh-host-certificate.sh",
         context={
             "id": 42,
             "hostname": hostname
