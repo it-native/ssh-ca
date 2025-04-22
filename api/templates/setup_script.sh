@@ -4,6 +4,9 @@ set -e
 
 do_install() {
 
+    apt update
+    apt install -y curl
+
     hostname="{{ hostname }}"
 
     basedir=/opt/secrets
@@ -45,7 +48,7 @@ do_install() {
 
     echo Enabling automatic SSH certificate renewal
     systemctl daemon-reload
-    systemctl start ssh-host-certificate-renew.timer
+    systemctl enable ssh-host-certificate-renew.timer
 
     echo Restarting the SSH daemon
     systemctl restart ssh
