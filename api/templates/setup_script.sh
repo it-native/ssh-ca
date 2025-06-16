@@ -41,7 +41,7 @@ do_install() {
     curl -s "{{ url_for('get_systemd_service') }}" > $filename
 
     echo Fetching my SSH certificate
-    /opt/secrets/renew-host-certificate.sh
+    /opt/secrets/renew-ssh-host-certificate.sh
 
     echo Setting up your SSH daemon
     curl -s "{{ url_for('get_ssh_config_file') }}" > /etc/ssh/sshd_config.d/ca-config.conf
