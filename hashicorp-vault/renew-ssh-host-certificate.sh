@@ -61,6 +61,11 @@ cert=$(echo $cert | jq -r ".data.signed_key")
 if [[ -v cert && "$cert" != "null" ]]
 then
 	echo $cert > /etc/ssh/ssh_host_ed25519_key-cert.pub
+    if systemctl list-unit-files ssh.service &>/dev/null; then
+        systemctl reload ssh
+    elif systemctl list-unit-files sshd.service &>/dev/null; then
+        systemctl reload sshd
+    fi
 else
 	echo "Error during cert signing"
 	exit 4
